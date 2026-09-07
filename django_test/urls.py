@@ -22,4 +22,5 @@ from myapp import views
 urlpatterns = [
     path('login/', views.login),
     path('home/', views.home),
+    path('api/device/status/', views.device_status, name='device_status'), # name是url名字
 ]

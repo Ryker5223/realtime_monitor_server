@@ -1,8 +1,10 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, HttpResponse
 from myapp.models import User_Info
 from django.forms import ModelForm
 from django import forms
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 class User_login(forms.Form):
     username = forms.CharField(widget=forms.TextInput)
@@ -29,3 +31,63 @@ def login(request):
 def home(request):
     if request.method == 'GET':
         return render(request, 'home.html')
+
+
+
+"""
+status 功能
+"""
+# 暂时保存在内存里
+latest_status = {
+    "device_id": "imx6ull_001",
+    "online": False,
+    "cpu_usage": 0.0,
+    "cpu_temp": 0.0,
+    "ram_usage": 0.0,
+    "fps": 0.0,
+    "camera": "offline",
+    "uptime": 0,
+}
+
+
+@csrf_exempt
+def device_status(request):
+    global latest_status
+    if request.method == 'POST':
+        try:
+            # request.body 是 bytes
+            # json.loads() 将 JSON 转成 Python 字典
+            # request.body 里是 HTTP 请求体（body）的原始字节数据
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            # 出错后执行这里
+            return JsonResponse(
+                {
+                    "status":"error",
+                    "message":"invalid json",
+                },
+                status=400,
+            )
+        # save the latest info
+        latest_status = {
+            "device_id": data.get('device_id', 'unknown'),
+            "online": data.get('online', False),
+            "cpu_usage": data.get('cpu_usage', 0.0),
+            "cpu_temp": data.get('cpu_temp', 0.0),
+            "ram_usage": data.get('ram_usage', 0.0),
+            "fps": data.get('fps', 0.0),
+            "uptime": data.get('uptime', 0),
+            "camera": data.get('camera', 'offline'),
+        }
+
+        print("Received status: ", latest_status)
+        return JsonResponse(latest_status)
+
+    # GET
+    return JsonResponse(
+        {
+            "status": "error",
+            "message": "invalid request",
+        },
+        status=400,
+    )

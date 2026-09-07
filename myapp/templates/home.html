@@ -497,81 +497,6 @@
 
 
     /* =========================
-       Camera List
-       ========================= */
-
-    .camera-list {
-        padding: 10px;
-    }
-
-    .camera-item {
-        display: flex;
-        align-items: center;
-
-        gap: 12px;
-
-        padding: 12px;
-
-        border-radius: 11px;
-
-        cursor: pointer;
-
-        transition: 0.2s;
-    }
-
-    .camera-item:hover {
-        background: #f8fafc;
-    }
-
-    .camera-item.active {
-        background: #eff6ff;
-    }
-
-    .camera-icon {
-        width: 37px;
-        height: 37px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        border-radius: 10px;
-
-        color: #4f46e5;
-
-        background: #e0e7ff;
-    }
-
-    .camera-info {
-        flex: 1;
-    }
-
-    .camera-name {
-        color: #1e293b;
-
-        font-size: 12px;
-        font-weight: 650;
-    }
-
-    .camera-location {
-        margin-top: 2px;
-
-        color: #94a3b8;
-
-        font-size: 11px;
-    }
-
-    .camera-online {
-        width: 8px;
-        height: 8px;
-
-        border-radius: 50%;
-
-        background: #22c55e;
-    }
-
-
-    /* =========================
        Responsive
        ========================= */
 
@@ -601,6 +526,83 @@
 
     }
 
+
+    /* =========================
+       Balanced layout without Cameras
+       ========================= */
+
+    .monitor-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
+        grid-template-areas:
+            "video sidebar"
+            "metrics metrics";
+        gap: 24px;
+        align-items: stretch;
+    }
+
+    .monitor-main {
+        display: contents;
+    }
+
+    .monitor-main > .monitor-card {
+        grid-area: video;
+        min-width: 0;
+    }
+
+    .monitor-layout .metrics-grid {
+        grid-area: metrics;
+        margin-top: 0;
+    }
+
+    .monitor-sidebar {
+        grid-area: sidebar;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .monitor-sidebar > .monitor-card {
+        margin-bottom: 0 !important;
+    }
+
+    .monitor-sidebar > .monitor-card:first-child {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .monitor-sidebar > .monitor-card:first-child .info-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    @media (max-width: 991px) {
+        .monitor-layout {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "video"
+                "sidebar"
+                "metrics";
+            gap: 20px;
+        }
+
+        .monitor-sidebar {
+            height: auto;
+        }
+
+        .monitor-sidebar > .monitor-card:first-child {
+            flex: none;
+        }
+
+        .monitor-sidebar > .monitor-card:first-child .info-body {
+            display: block;
+        }
+    }
 </style>
 
 
@@ -645,14 +647,14 @@
 
 
 
-        <div class="row g-4">
+        <div class="monitor-layout">
 
 
             <!-- =========================
                  Left Main Area
                  ========================= -->
 
-            <div class="col-xl-9 col-lg-8">
+            <div class="monitor-main">
 
 
                 <!-- =========================
@@ -667,15 +669,6 @@
                         <h2 class="card-title-custom">
                             Live Camera
                         </h2>
-
-
-                        <span
-                            class="badge bg-success"
-                            id="streamStatus">
-
-                            Streaming
-
-                        </span>
 
                     </div>
 
@@ -990,7 +983,7 @@
                  Right Sidebar
                  ========================= -->
 
-            <div class="col-xl-3 col-lg-4">
+            <div class="monitor-sidebar">
 
 
                 <!-- Device Information -->
@@ -1124,66 +1117,6 @@
 
 
 
-                <!-- Stream Information -->
-
-                <div class="monitor-card mb-4">
-
-
-                    <div class="card-header-custom">
-
-                        <h2 class="card-title-custom">
-                            Stream Statistics
-                        </h2>
-
-                    </div>
-
-
-                    <div class="network-grid">
-
-
-                        <div class="network-box">
-
-                            <div class="network-title">
-                                Bitrate
-                            </div>
-
-                            <div class="network-value">
-
-                                <span id="bitrate">
-                                    0
-                                </span>
-
-                                Kbps
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="network-box">
-
-                            <div class="network-title">
-                                FPS
-                            </div>
-
-                            <div
-                                class="network-value"
-                                id="streamFps">
-
-                                0
-
-                            </div>
-
-                        </div>
-
-
-                    </div>
-
-
-                </div>
-
-
-
                 <!-- Network Information -->
 
                 <div class="monitor-card mb-4">
@@ -1243,61 +1176,6 @@
 
 
                 </div>
-
-
-
-                <!-- Camera List -->
-
-                <div class="monitor-card">
-
-
-                    <div class="card-header-custom">
-
-                        <h2 class="card-title-custom">
-                            Cameras
-                        </h2>
-
-                    </div>
-
-
-                    <div class="camera-list">
-
-
-                        <div
-                            class="camera-item active"
-                            data-camera="cam1">
-
-
-                            <div class="camera-icon">
-                                CAM
-                            </div>
-
-
-                            <div class="camera-info">
-
-                                <div class="camera-name">
-                                    Camera 01
-                                </div>
-
-                                <div class="camera-location">
-                                    i.MX6ULL Main Camera
-                                </div>
-
-                            </div>
-
-
-                            <span class="camera-online"></span>
-
-
-                        </div>
-
-
-                    </div>
-
-
-                </div>
-
-
             </div>
 
 
@@ -1548,18 +1426,6 @@
                             );
 
 
-                        $("#streamFps")
-                            .text(
-                                data.fps
-                            );
-
-
-                        $("#bitrate")
-                            .text(
-                                data.bitrate
-                            );
-
-
 
                         /* Network */
 
@@ -1628,18 +1494,6 @@
                                 );
 
 
-                            $("#streamStatus")
-                                .text(
-                                    "Streaming"
-                                )
-                                .removeClass(
-                                    "bg-danger"
-                                )
-                                .addClass(
-                                    "bg-success"
-                                );
-
-
                         } else {
 
 
@@ -1705,18 +1559,6 @@
                 );
 
 
-            $("#streamStatus")
-                .text(
-                    "Offline"
-                )
-                .removeClass(
-                    "bg-success"
-                )
-                .addClass(
-                    "bg-danger"
-                );
-
-
         }
 
 
@@ -1726,7 +1568,6 @@
            ===================================== */
 
         getDeviceStatus();
-
 
 
         /* =====================================
