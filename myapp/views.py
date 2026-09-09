@@ -91,7 +91,7 @@ def device_status(request):
     # GET
     elif request.method == 'GET':
 
-        if (time.time() - last_seen > 5):
+        if (time.time() - last_seen > 10):
 
             latest_status["online"] = False
             latest_status["cpu_usage"] = 0.0
