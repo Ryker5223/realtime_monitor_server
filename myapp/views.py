@@ -55,6 +55,7 @@ last_seen = 0
 @csrf_exempt
 def device_status(request):
     global latest_status
+    global last_seen
     if request.method == 'POST':
         try:
             # request.body 是 bytes
@@ -81,6 +82,8 @@ def device_status(request):
             "uptime": data.get('uptime', 0),
             "camera": data.get('camera', 'offline'),
         }
+
+        last_seen = time.time()
 
         print("Received status: ", latest_status)
         return JsonResponse(latest_status)
