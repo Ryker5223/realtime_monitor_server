@@ -33,6 +33,7 @@ def home(request):
         return render(request, 'home.html')
 
 
+import time
 
 """
 status 功能
@@ -49,6 +50,7 @@ latest_status = {
     "uptime": 0,
 }
 
+last_seen = 0
 
 @csrf_exempt
 def device_status(request):
@@ -85,6 +87,17 @@ def device_status(request):
 
     # GET
     elif request.method == 'GET':
+
+        if (time.time() - last_seen > 5):
+
+            latest_status["online"] = False
+
+            latest_status["camera"] = "offline"
+
+        return JsonResponse(
+            latest_status
+        )
+
         return JsonResponse(
             latest_status
         )
