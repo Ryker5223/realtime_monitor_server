@@ -94,7 +94,11 @@ def device_status(request):
         if (time.time() - last_seen > 5):
 
             latest_status["online"] = False
-
+            latest_status["cpu_usage"] = 0.0
+            latest_status["cpu_temp"] = 0.0
+            latest_status["ram_usage"] = 0.0
+            latest_status["fps"] = 0.0
+            latest_status["uptime"] = 0.0
             latest_status["camera"] = "offline"
 
         return JsonResponse(
