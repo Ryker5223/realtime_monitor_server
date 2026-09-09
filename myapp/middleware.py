@@ -9,6 +9,9 @@ class LoginMiddleware(MiddlewareMixin):
         if path == "/login/":
             return None
 
+        if path == "/api/device/status/":
+            return None
+
         info_dict = request.session.get('info')
         if info_dict:
             return None
