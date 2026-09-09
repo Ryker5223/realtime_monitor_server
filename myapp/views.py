@@ -39,7 +39,7 @@ status 功能
 """
 # 暂时保存在内存里
 latest_status = {
-    "device_id": "imx6ull_001",
+    "device_id": "unknown",
     "online": False,
     "cpu_usage": 0.0,
     "cpu_temp": 0.0,
@@ -84,10 +84,14 @@ def device_status(request):
         return JsonResponse(latest_status)
 
     # GET
-    return JsonResponse(
-        {
-            "status": "error",
-            "message": "invalid request",
+    elif request.method == 'GET':
+        return JsonResponse(
+            latest_status
+        )
+
+    return JsonResponse({
+        "status": "error",
+        "message": "invalid method",
         },
-        status=400,
+        status=405,
     )

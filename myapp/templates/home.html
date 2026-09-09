@@ -1,12 +1,1350 @@
-```html
+{% extends 'temple.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+<style>
+
+    /* =========================
+       Page
+       ========================= */
+
+    body {
+        background: #f4f7fb;
+        color: #1e293b;
+    }
+
+    .monitor-page {
+        min-height: 100vh;
+        padding: 28px 24px;
+    }
+
+    .monitor-container {
+        max-width: 1550px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================
+       Header
+       ========================= */
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        gap: 20px;
+        flex-wrap: wrap;
+
+        margin-bottom: 24px;
+    }
+
+    .page-title {
+        margin: 0;
+
+        color: #0f172a;
+
+        font-size: 29px;
+        font-weight: 750;
+    }
+
+    .page-subtitle {
+        margin-top: 6px;
+
+        color: #64748b;
+
+        font-size: 14px;
+    }
+
+
+    /* =========================
+       Device Online Status
+       ========================= */
+
+    .system-status {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        background: #ffffff;
+
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+
+        padding: 9px 15px;
+
+        font-size: 13px;
+        font-weight: 650;
+
+        box-shadow:
+            0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .status-dot {
+        width: 9px;
+        height: 9px;
+
+        border-radius: 50%;
+
+        background: #22c55e;
+
+        box-shadow:
+            0 0 0 4px rgba(34, 197, 94, 0.12);
+    }
+
+    .status-dot.offline {
+        background: #ef4444;
+
+        box-shadow:
+            0 0 0 4px rgba(239, 68, 68, 0.12);
+    }
+
+
+    /* =========================
+       Card
+       ========================= */
+
+    .monitor-card {
+        background: #ffffff;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 7px 25px rgba(15, 23, 42, 0.05);
+    }
+
+    .card-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        gap: 12px;
+
+        padding: 17px 20px;
+
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .card-title-custom {
+        margin: 0;
+
+        color: #0f172a;
+
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+
+    /* =========================
+       Video
+       ========================= */
+
+    .video-container {
+        position: relative;
+
+        width: 100%;
+
+        aspect-ratio: 16 / 9;
+
+        background: #020617;
+
+        overflow: hidden;
+    }
+
+    .video-container video {
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+
+        background: #000000;
+    }
+
+    .video-overlay {
+        position: absolute;
+
+        top: 15px;
+        left: 15px;
+        right: 15px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        pointer-events: none;
+    }
+
+    .live-label {
+        display: flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding: 7px 11px;
+
+        color: #ffffff;
+
+        background:
+            rgba(15, 23, 42, 0.82);
+
+        border-radius: 8px;
+
+        font-size: 12px;
+        font-weight: 650;
+
+        backdrop-filter:
+            blur(8px);
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+
+        border-radius: 50%;
+
+        background: #ef4444;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(239, 68, 68, 0.20);
+    }
+
+    .video-time {
+        padding: 7px 11px;
+
+        color: #ffffff;
+
+        background:
+            rgba(15, 23, 42, 0.82);
+
+        border-radius: 8px;
+
+        font-family: monospace;
+        font-size: 12px;
+
+        backdrop-filter:
+            blur(8px);
+    }
+
+
+    /* =========================
+       Video Controls
+       ========================= */
+
+    .player-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        gap: 12px;
+
+        flex-wrap: wrap;
+
+        padding: 14px 17px;
+
+        border-top:
+            1px solid #eef2f7;
+    }
+
+    .control-group {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .control-btn {
+        padding: 8px 12px;
+
+        background: #ffffff;
+
+        border:
+            1px solid #dbe3ee;
+
+        border-radius: 9px;
+
+        color: #334155;
+
+        font-size: 12px;
+        font-weight: 600;
+
+        transition: 0.2s;
+    }
+
+    .control-btn:hover {
+        color: #2563eb;
+
+        background: #f8fafc;
+
+        border-color: #bfdbfe;
+    }
+
+    .control-btn-primary {
+        color: #ffffff;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #4f46e5
+            );
+    }
+
+    .control-btn-primary:hover {
+        color: #ffffff;
+
+        background:
+            linear-gradient(
+                135deg,
+                #1d4ed8,
+                #4338ca
+            );
+    }
+
+
+    /* =========================
+       Metrics
+       ========================= */
+
+    .metrics-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0, 1fr)
+            );
+
+        gap: 14px;
+    }
+
+    .metric-card {
+        background: #ffffff;
+
+        border:
+            1px solid #e5e7eb;
+
+        border-radius: 16px;
+
+        padding: 18px;
+
+        box-shadow:
+            0 5px 18px
+            rgba(15, 23, 42, 0.04);
+    }
+
+    .metric-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        margin-bottom: 11px;
+    }
+
+    .metric-name {
+        color: #64748b;
+
+        font-size: 12px;
+        font-weight: 650;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.5px;
+    }
+
+    .metric-icon {
+        width: 34px;
+        height: 34px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 10px;
+
+        color: #2563eb;
+
+        background: #eff6ff;
+    }
+
+    .metric-value {
+        color: #0f172a;
+
+        font-size: 25px;
+        font-weight: 750;
+    }
+
+    .metric-unit {
+        margin-left: 3px;
+
+        color: #64748b;
+
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .metric-footer {
+        margin-top: 7px;
+
+        color: #94a3b8;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================
+       Progress Bar
+       ========================= */
+
+    .progress-custom {
+        height: 6px;
+
+        margin-top: 12px;
+
+        background: #eef2f7;
+
+        border-radius: 20px;
+
+        overflow: hidden;
+    }
+
+    .progress-bar-custom {
+        height: 100%;
+
+        width: 0%;
+
+        border-radius: 20px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #6366f1
+            );
+
+        transition:
+            width 0.4s ease;
+    }
+
+
+    /* =========================
+       Device Information
+       ========================= */
+
+    .info-body {
+        padding:
+            7px 18px 16px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        gap: 16px;
+
+        padding: 13px 2px;
+
+        border-bottom:
+            1px solid #f1f5f9;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #64748b;
+
+        font-size: 12px;
+    }
+
+    .info-value {
+        color: #0f172a;
+
+        font-size: 12px;
+        font-weight: 650;
+
+        text-align: right;
+    }
+
+    .online-text {
+        color: #16a34a;
+    }
+
+    .offline-text {
+        color: #dc2626;
+    }
+
+
+    /* =========================
+       Layout
+       ========================= */
+
+    .monitor-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 3fr)
+            minmax(280px, 1fr);
+
+        grid-template-areas:
+            "video sidebar"
+            "metrics metrics";
+
+        gap: 24px;
+    }
+
+    .monitor-main {
+        display: contents;
+    }
+
+    .video-card {
+        grid-area: video;
+    }
+
+    .metrics-grid {
+        grid-area: metrics;
+    }
+
+    .monitor-sidebar {
+        grid-area: sidebar;
+    }
+
+
+    /* =========================
+       Responsive
+       ========================= */
+
+    @media (
+        max-width: 1199px
+    ) {
+
+        .metrics-grid {
+            grid-template-columns:
+                repeat(2, 1fr);
+        }
+
+    }
+
+
+    @media (
+        max-width: 991px
+    ) {
+
+        .monitor-layout {
+
+            grid-template-columns:
+                1fr;
+
+            grid-template-areas:
+                "video"
+                "sidebar"
+                "metrics";
+
+        }
+
+    }
+
+
+    @media (
+        max-width: 767px
+    ) {
+
+        .monitor-page {
+            padding: 18px 12px;
+        }
+
+        .metrics-grid {
+            grid-template-columns:
+                1fr;
+        }
+
+        .page-title {
+            font-size: 24px;
+        }
+
+    }
+
+</style>
+
+
+
+<div class="monitor-page">
+
+    <div class="monitor-container">
+
+
+        <!-- =========================
+             Header
+             ========================= -->
+
+        <div class="page-header">
+
+
+            <div>
+
+                <h1 class="page-title">
+
+                    Embedded Device Monitoring
+
+                </h1>
+
+
+                <div class="page-subtitle">
+
+                    Real-time video stream and
+                    i.MX6ULL system status
+
+                </div>
+
+            </div>
+
+
+
+            <div class="system-status">
+
+                <span
+                    class="status-dot offline"
+                    id="deviceStatusDot">
+                </span>
+
+
+                <span
+                    id="deviceStatusText">
+
+                    Device Offline
+
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================
+             Main Layout
+             ========================= -->
+
+        <div class="monitor-layout">
+
+
+            <div class="monitor-main">
+
+
+                <!-- =========================
+                     Video
+                     ========================= -->
+
+                <div
+                    class="monitor-card
+                           video-card">
+
+
+                    <div
+                        class="card-header-custom">
+
+                        <h2
+                            class="card-title-custom">
+
+                            Live Camera
+
+                        </h2>
+
+                    </div>
+
+
+
+                    <div
+                        class="video-container">
+
+
+                        <video
+                            id="videoPlayer"
+                            autoplay
+                            muted
+                            controls
+                            playsinline>
+                        </video>
+
+
+
+                        <div
+                            class="video-overlay">
+
+
+                            <div
+                                class="live-label">
+
+                                <span
+                                    class="live-dot">
+                                </span>
+
+                                LIVE
+
+                            </div>
+
+
+
+                            <div
+                                class="video-time"
+                                id="currentTime">
+
+                                ---- -- -- --:--:--
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- Video Buttons -->
+
+                    <div
+                        class="player-controls">
+
+
+                        <div
+                            class="control-group">
+
+
+                            <button
+                                class="
+                                    control-btn
+                                    control-btn-primary"
+                                id="playBtn">
+
+                                Play
+
+                            </button>
+
+
+
+                            <button
+                                class="control-btn"
+                                id="pauseBtn">
+
+                                Pause
+
+                            </button>
+
+
+
+                            <button
+                                class="control-btn"
+                                id="muteBtn">
+
+                                Unmute
+
+                            </button>
+
+
+                        </div>
+
+
+
+                        <div
+                            class="control-group">
+
+
+                            <button
+                                class="control-btn"
+                                id="refreshBtn">
+
+                                Refresh Stream
+
+                            </button>
+
+
+
+                            <button
+                                class="control-btn"
+                                id="fullscreenBtn">
+
+                                Fullscreen
+
+                            </button>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- =========================
+                     Metrics
+                     ========================= -->
+
+                <div
+                    class="metrics-grid">
+
+
+                    <!-- CPU Usage -->
+
+                    <div
+                        class="metric-card">
+
+
+                        <div
+                            class="metric-top">
+
+
+                            <div
+                                class="metric-name">
+
+                                CPU Usage
+
+                            </div>
+
+
+                            <div
+                                class="metric-icon">
+
+                                CPU
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div>
+
+                            <span
+                                class="metric-value"
+                                id="cpuUsage">
+
+                                0
+
+                            </span>
+
+
+                            <span
+                                class="metric-unit">
+
+                                %
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div
+                            class="progress-custom">
+
+                            <div
+                                class="
+                                    progress-bar-custom"
+                                id="cpuProgress">
+                            </div>
+
+                        </div>
+
+
+
+                        <div
+                            class="metric-footer">
+
+                            Processor utilization
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- CPU Temperature -->
+
+                    <div
+                        class="metric-card">
+
+
+                        <div
+                            class="metric-top">
+
+
+                            <div
+                                class="metric-name">
+
+                                CPU Temperature
+
+                            </div>
+
+
+                            <div
+                                class="metric-icon">
+
+                                °C
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div>
+
+                            <span
+                                class="metric-value"
+                                id="cpuTemp">
+
+                                0
+
+                            </span>
+
+
+                            <span
+                                class="metric-unit">
+
+                                °C
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div
+                            class="metric-footer">
+
+                            Current SoC temperature
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- RAM -->
+
+                    <div
+                        class="metric-card">
+
+
+                        <div
+                            class="metric-top">
+
+
+                            <div
+                                class="metric-name">
+
+                                Memory Usage
+
+                            </div>
+
+
+                            <div
+                                class="metric-icon">
+
+                                RAM
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div>
+
+                            <span
+                                class="metric-value"
+                                id="memoryUsage">
+
+                                0
+
+                            </span>
+
+
+                            <span
+                                class="metric-unit">
+
+                                %
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div
+                            class="progress-custom">
+
+                            <div
+                                class="
+                                    progress-bar-custom"
+                                id="memoryProgress">
+                            </div>
+
+                        </div>
+
+
+
+                        <div
+                            class="metric-footer">
+
+                            System memory utilization
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- FPS -->
+
+                    <div
+                        class="metric-card">
+
+
+                        <div
+                            class="metric-top">
+
+
+                            <div
+                                class="metric-name">
+
+                                Camera FPS
+
+                            </div>
+
+
+                            <div
+                                class="metric-icon">
+
+                                FPS
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div>
+
+                            <span
+                                class="metric-value"
+                                id="fps">
+
+                                0
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div
+                            class="metric-footer">
+
+                            Current frame rate
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =========================
+                 Device Information
+                 ========================= -->
+
+            <div
+                class="monitor-sidebar">
+
+
+                <div
+                    class="monitor-card">
+
+
+                    <div
+                        class="card-header-custom">
+
+
+                        <h2
+                            class="card-title-custom">
+
+                            Device Information
+
+                        </h2>
+
+
+                    </div>
+
+
+
+                    <div
+                        class="info-body">
+
+
+                        <!-- Device Model -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Device
+
+                            </span>
+
+
+                            <span
+                                class="info-value">
+
+                                i.MX6ULL
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- Device ID -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Device ID
+
+                            </span>
+
+
+                            <span
+                                class="info-value"
+                                id="deviceId">
+
+                                ---
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- Uptime -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Uptime
+
+                            </span>
+
+
+                            <span
+                                class="info-value"
+                                id="uptime">
+
+                                ---
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- Resolution -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Resolution
+
+                            </span>
+
+
+                            <span
+                                class="info-value">
+
+                                800 × 480
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- Protocol -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Protocol
+
+                            </span>
+
+
+                            <span
+                                class="info-value">
+
+                                RTMP / HLS
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- Camera -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Camera
+
+                            </span>
+
+
+                            <span
+                                class="
+                                    info-value
+                                    offline-text"
+                                id="cameraStatus">
+
+                                Offline
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- Status -->
+
+                        <div
+                            class="info-row">
+
+
+                            <span
+                                class="info-label">
+
+                                Status
+
+                            </span>
+
+
+                            <span
+                                class="
+                                    info-value
+                                    offline-text"
+                                id="deviceStatus">
+
+                                Offline
+
+                            </span>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+
 {% block javascript %}
 
-<!-- 先加载 hls.js，必须放在你自己的 JavaScript 前面 -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<!-- =========================
+     hls.js
+     必须放在自己的 JS 前面
+     ========================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/hls.js@latest">
+</script>
+
+
 
 <script>
 
     $(function () {
+
+
+        /* =====================================
+           Video
+           ===================================== */
 
         const video =
             document.getElementById(
@@ -14,121 +1352,236 @@
             );
 
 
-        /* =====================================
-           HLS Live Stream
-           ===================================== */
+        const streamUrl =
+            "/hls/cam1.m3u8";
 
-        const streamUrl = "/hls/cam1.m3u8";
 
         let hls = null;
 
 
-        if (Hls.isSupported()) {
 
-            console.log(
-                "HLS.js supported"
-            );
+        /* =====================================
+           Initialize HLS
+           ===================================== */
 
-            console.log(
-                "Loading stream:",
-                streamUrl
-            );
+        function initHls() {
 
 
-            hls = new Hls({
+            /*
+             * 如果已经存在播放器，
+             * 先销毁。
+             */
 
-                // 尽量靠近直播边缘
-                liveSyncDurationCount: 2,
+            if (
+                hls !== null
+            ) {
 
-                // 最大允许延迟
-                liveMaxLatencyDurationCount: 5
+                hls.destroy();
 
-            });
+                hls = null;
 
-
-            // 加载 m3u8
-            hls.loadSource(
-                streamUrl
-            );
-
-
-            // 绑定到 video
-            hls.attachMedia(
-                video
-            );
+            }
 
 
-            // HLS manifest 加载成功
-            hls.on(
-                Hls.Events.MANIFEST_PARSED,
-                function () {
 
-                    console.log(
-                        "HLS manifest loaded"
-                    );
+            /*
+             * Chrome / Edge / Firefox
+             */
+
+            if (
+                Hls.isSupported()
+            ) {
 
 
-                    video.play().catch(
-                        function (err) {
+                console.log(
+                    "HLS.js supported"
+                );
 
-                            console.log(
-                                "Autoplay blocked:",
-                                err
+
+                console.log(
+                    "Loading:",
+                    streamUrl
+                );
+
+
+
+                hls =
+                    new Hls({
+
+
+                        /*
+                         * 尽量靠近直播位置
+                         */
+
+                        liveSyncDurationCount:
+                            2,
+
+
+                        /*
+                         * 最大直播延迟
+                         */
+
+                        liveMaxLatencyDurationCount:
+                            5
+
+                    });
+
+
+
+                /*
+                 * 加载 m3u8
+                 */
+
+                hls.loadSource(
+                    streamUrl
+                );
+
+
+
+                /*
+                 * 绑定到 video
+                 */
+
+                hls.attachMedia(
+                    video
+                );
+
+
+
+                /*
+                 * m3u8 加载完成
+                 */
+
+                hls.on(
+
+                    Hls.Events.MANIFEST_PARSED,
+
+                    function () {
+
+
+                        console.log(
+                            "HLS manifest loaded"
+                        );
+
+
+                        video.play()
+                            .catch(
+
+                                function (
+                                    error
+                                ) {
+
+                                    console.log(
+                                        "Autoplay blocked:",
+                                        error
+                                    );
+
+                                }
+
                             );
 
-                        }
-                    );
+                    }
 
-                }
-            );
+                );
 
 
-            // HLS 错误处理
-            hls.on(
-                Hls.Events.ERROR,
-                function (event, data) {
 
-                    console.error(
-                        "HLS error:",
+                /*
+                 * HLS Error
+                 */
+
+                hls.on(
+
+                    Hls.Events.ERROR,
+
+                    function (
+                        event,
                         data
-                    );
+                    ) {
 
 
-                    if (data.fatal) {
+                        console.error(
+                            "HLS error:",
+                            data
+                        );
+
+
+
+                        if (
+                            data.fatal !== true
+                        ) {
+
+                            return;
+
+                        }
+
+
 
                         switch (
                             data.type
                         ) {
 
-                            case Hls.ErrorTypes.NETWORK_ERROR:
+
+                            /*
+                             * Network
+                             */
+
+                            case
+                                Hls.ErrorTypes
+                                    .NETWORK_ERROR:
+
 
                                 console.log(
-                                    "HLS network error, retrying..."
+                                    "Network error"
                                 );
+
 
                                 hls.startLoad();
 
+
                                 break;
 
 
-                            case Hls.ErrorTypes.MEDIA_ERROR:
+
+                            /*
+                             * Decoder
+                             */
+
+                            case
+                                Hls.ErrorTypes
+                                    .MEDIA_ERROR:
+
 
                                 console.log(
-                                    "HLS media error, recovering..."
+                                    "Media error"
                                 );
 
-                                hls.recoverMediaError();
+
+                                hls
+                                    .recoverMediaError();
+
 
                                 break;
 
 
+
+                            /*
+                             * Fatal
+                             */
+
                             default:
+
 
                                 console.log(
                                     "Fatal HLS error"
                                 );
 
+
                                 hls.destroy();
+
+
+                                hls = null;
+
 
                                 break;
 
@@ -136,65 +1589,76 @@
 
                     }
 
-                }
-            );
+                );
 
-        }
+            }
 
-        else if (
-            video.canPlayType(
-                "application/vnd.apple.mpegurl"
-            )
-        ) {
+
 
             /*
-             * Safari 等浏览器原生支持 HLS
+             * Safari
              */
 
-            console.log(
-                "Native HLS supported"
-            );
+            else if (
+
+                video.canPlayType(
+                    "application/vnd.apple.mpegurl"
+                )
+
+            ) {
 
 
-            video.src =
-                streamUrl;
+                video.src =
+                    streamUrl;
 
 
-            video.addEventListener(
-                "loadedmetadata",
-                function () {
+                video.play()
+                    .catch(
 
-                    video.play().catch(
-                        function (err) {
+                        function (
+                            error
+                        ) {
 
                             console.log(
-                                "Autoplay blocked:",
-                                err
+                                "Play error:",
+                                error
                             );
 
                         }
+
                     );
 
-                }
-            );
+            }
+
+
+
+            else {
+
+
+                console.error(
+                    "HLS not supported"
+                );
+
+            }
 
         }
 
-        else {
 
-            console.error(
-                "This browser does not support HLS"
-            );
 
-        }
+        /*
+         * 页面加载后启动视频
+         */
+
+        initHls();
 
 
 
         /* =====================================
-           Current Time
+           Clock
            ===================================== */
 
         function updateTime() {
+
 
             const now =
                 new Date();
@@ -251,11 +1715,16 @@
 
             $("#currentTime").text(
 
-                year + "-" +
-                month + "-" +
-                day + " " +
-                hour + ":" +
-                minute + ":" +
+                year +
+                "-" +
+                month +
+                "-" +
+                day +
+                " " +
+                hour +
+                ":" +
+                minute +
+                ":" +
                 second
 
             );
@@ -263,7 +1732,9 @@
         }
 
 
+
         updateTime();
+
 
 
         setInterval(
@@ -274,44 +1745,64 @@
 
 
         /* =====================================
-           Player Buttons
+           Play
            ===================================== */
 
-
         $("#playBtn").click(
+
             function () {
 
-                video.play().catch(
-                    function (err) {
 
-                        console.log(
-                            "Play failed:",
-                            err
-                        );
+                video.play()
+                    .catch(
 
-                    }
-                );
+                        function (
+                            error
+                        ) {
+
+                            console.log(
+                                "Play failed:",
+                                error
+                            );
+
+                        }
+
+                    );
 
             }
+
         );
 
 
 
+        /* =====================================
+           Pause
+           ===================================== */
+
         $("#pauseBtn").click(
+
             function () {
 
                 video.pause();
 
             }
+
         );
 
 
 
+        /* =====================================
+           Mute
+           ===================================== */
+
         $("#muteBtn").click(
+
             function () {
+
 
                 video.muted =
                     !video.muted;
+
 
 
                 if (
@@ -333,78 +1824,48 @@
                 }
 
             }
+
         );
 
 
+
+        /* =====================================
+           Refresh Stream
+           ===================================== */
 
         $("#refreshBtn").click(
+
             function () {
 
+
                 console.log(
-                    "Refreshing HLS stream"
+                    "Refresh stream"
                 );
 
 
-                if (
-                    hls
-                ) {
-
-                    /*
-                     * 停止旧流
-                     */
-
-                    hls.stopLoad();
-
-
-                    /*
-                     * 重新加载 m3u8
-                     */
-
-                    hls.loadSource(
-                        streamUrl
-                    );
-
-
-                    hls.startLoad();
-
-
-                }
-
-                else {
-
-                    /*
-                     * Safari 原生 HLS
-                     */
-
-                    video.load();
-
-                }
-
-
-                video.play().catch(
-                    function (err) {
-
-                        console.log(
-                            "Refresh play failed:",
-                            err
-                        );
-
-                    }
-                );
+                initHls();
 
             }
+
         );
 
 
 
+        /* =====================================
+           Fullscreen
+           ===================================== */
+
         $("#fullscreenBtn").click(
+
             function () {
+
 
                 if (
                     video.requestFullscreen
                 ) {
 
-                    video.requestFullscreen();
+                    video
+                        .requestFullscreen();
 
                 }
 
@@ -412,23 +1873,26 @@
                     video.webkitRequestFullscreen
                 ) {
 
-                    video.webkitRequestFullscreen();
+                    video
+                        .webkitRequestFullscreen();
 
                 }
 
             }
+
         );
 
 
 
         /* =====================================
-           Device Status AJAX
+           Device Status
            ===================================== */
 
         function getDeviceStatus() {
 
 
             $.ajax({
+
 
                 url:
                     "/api/device/status/",
@@ -442,97 +1906,169 @@
                     "json",
 
 
+
+                /* =========================
+                   Success
+                   ========================= */
+
                 success:
-                    function (data) {
+                    function (
+                        data
+                    ) {
 
 
-                        /* CPU */
+                        console.log(
+                            "Device status:",
+                            data
+                        );
+
+
+
+                        /* =====================
+                           CPU Usage
+                           ===================== */
+
+                        const cpuUsage =
+                            data.cpu_usage ?? 0;
+
 
                         $("#cpuUsage")
                             .text(
-                                data.cpu_usage
+                                cpuUsage
                             );
 
 
                         $("#cpuProgress")
                             .css(
                                 "width",
-                                data.cpu_usage + "%"
+                                cpuUsage + "%"
                             );
 
 
 
-                        /* Temperature */
+                        /* =====================
+                           CPU Temperature
+                           ===================== */
 
                         $("#cpuTemp")
                             .text(
-                                data.cpu_temp
+                                data.cpu_temp ?? 0
                             );
 
 
 
-                        /* Memory */
+                        /* =====================
+                           RAM Usage
+
+                           后端字段：
+                           ram_usage
+                           ===================== */
+
+                        const ramUsage =
+                            data.ram_usage ?? 0;
+
 
                         $("#memoryUsage")
                             .text(
-                                data.memory_usage
+                                ramUsage
                             );
 
 
                         $("#memoryProgress")
                             .css(
                                 "width",
-                                data.memory_usage + "%"
+                                ramUsage + "%"
                             );
 
 
 
-                        /* Camera */
+                        /* =====================
+                           FPS
+                           ===================== */
 
                         $("#fps")
                             .text(
-                                data.fps
+                                data.fps ?? 0
                             );
 
 
 
-                        /* Network */
-
-                        $("#networkRx")
-                            .text(
-                                data.network_rx
-                            );
-
-
-                        $("#networkTx")
-                            .text(
-                                data.network_tx
-                            );
-
-
-
-                        /* Device Information */
+                        /* =====================
+                           Device ID
+                           ===================== */
 
                         $("#deviceId")
                             .text(
                                 data.device_id
+                                ?? "---"
                             );
 
 
-                        $("#deviceIp")
-                            .text(
-                                data.ip
-                            );
 
+                        /* =====================
+                           Uptime
+                           ===================== */
 
                         $("#uptime")
                             .text(
                                 data.uptime
+                                ?? "---"
                             );
 
 
 
-                        /* Online Status */
+                        /* =====================
+                           Camera
+                           ===================== */
+
+                        const camera =
+                            data.camera
+                            ?? "offline";
+
+
+                        $("#cameraStatus")
+                            .text(
+                                camera
+                            );
+
+
+
+                        if (
+                            camera ===
+                            "online"
+                        ) {
+
+
+                            $("#cameraStatus")
+                                .removeClass(
+                                    "offline-text"
+                                )
+                                .addClass(
+                                    "online-text"
+                                );
+
+
+                        }
+
+                        else {
+
+
+                            $("#cameraStatus")
+                                .removeClass(
+                                    "online-text"
+                                )
+                                .addClass(
+                                    "offline-text"
+                                );
+
+
+                        }
+
+
+
+                        /* =====================
+                           Device Online
+                           ===================== */
 
                         if (
                             data.online === true
@@ -562,28 +2098,40 @@
                                     "offline"
                                 );
 
+
                         }
 
                         else {
 
+
                             setDeviceOffline();
 
-                        }
 
+                        }
 
                     },
 
 
+
+                /* =========================
+                   Error
+                   ========================= */
+
                 error:
-                    function () {
+                    function (
+                        xhr
+                    ) {
 
 
-                        /*
-                         * Django API cannot be reached.
-                         * Treat the device as offline.
-                         */
+                        console.error(
+                            "Device API error:",
+                            xhr.status,
+                            xhr.responseText
+                        );
+
 
                         setDeviceOffline();
+
 
                     }
 
@@ -594,7 +2142,7 @@
 
 
         /* =====================================
-           Offline State
+           Set Offline
            ===================================== */
 
         function setDeviceOffline() {
@@ -623,12 +2171,21 @@
                     "offline"
                 );
 
+
+            $("#cameraStatus")
+                .removeClass(
+                    "online-text"
+                )
+                .addClass(
+                    "offline-text"
+                );
+
         }
 
 
 
         /* =====================================
-           Get status immediately
+           First Request
            ===================================== */
 
         getDeviceStatus();
@@ -636,8 +2193,7 @@
 
 
         /* =====================================
-           Refresh device information
-           every second
+           Refresh Every Second
            ===================================== */
 
         setInterval(
@@ -650,5 +2206,5 @@
 
 </script>
 
+
 {% endblock %}
-```
