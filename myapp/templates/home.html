@@ -1201,6 +1201,50 @@
             document.getElementById(
                 "videoPlayer"
             );
+        const streamUrl = "/hls/cam1.m3u8";
+
+        let hls = null;
+
+        if (Hls.isSupported()) {
+
+            hls = new Hls({
+                liveSyncDurationCount: 2,
+                liveMaxLatencyDurationCount: 5
+            });
+
+            hls.loadSource(streamUrl);
+
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+
+                video.play().catch(function (err) {
+                    console.log("Autoplay blocked:", err);
+                });
+
+            });
+
+            hls.on(Hls.Events.ERROR, function (event, data) {
+
+                console.log("HLS error:", data);
+
+            });
+
+        }
+        else if (
+            video.canPlayType("application/vnd.apple.mpegurl")
+        ) {
+
+            video.src = streamUrl;
+
+            video.addEventListener(
+                "loadedmetadata",
+                function () {
+                    video.play();
+                }
+            );
+
+        }
 
 
         /* =====================================
@@ -1330,7 +1374,20 @@
 
         $("#refreshBtn").click(function () {
 
-            video.load();
+            if (hls) {
+
+                hls.stopLoad();
+
+                hls.loadSource(streamUrl);
+
+                hls.startLoad();
+
+            }
+            else {
+
+                video.load();
+
+            }
 
             video.play();
 
@@ -1582,7 +1639,7 @@
 
 
     });
-
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </script>
 
 {% endblock %}
