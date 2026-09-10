@@ -1,12 +1,9 @@
 {% extends 'temple.html' %}
-
 {% load static %}
-
 
 {% block content %}
 
 <style>
-
     /* =========================
        Page
        ========================= */
@@ -580,7 +577,6 @@
 </style>
 
 
-
 <div class="monitor-page">
 
     <div class="monitor-container">
@@ -612,14 +608,12 @@
             </div>
 
 
-
             <div class="system-status">
 
                 <span
                     class="status-dot offline"
                     id="deviceStatusDot">
                 </span>
-
 
                 <span
                     id="deviceStatusText">
@@ -632,7 +626,6 @@
 
 
         </div>
-
 
 
         <!-- =========================
@@ -667,7 +660,6 @@
                     </div>
 
 
-
                     <div
                         class="video-container">
 
@@ -679,7 +671,6 @@
                             controls
                             playsinline>
                         </video>
-
 
 
                         <div
@@ -698,7 +689,6 @@
                             </div>
 
 
-
                             <div
                                 class="video-time"
                                 id="currentTime">
@@ -712,7 +702,6 @@
 
 
                     </div>
-
 
 
                     <!-- Video Buttons -->
@@ -736,7 +725,6 @@
                             </button>
 
 
-
                             <button
                                 class="control-btn"
                                 id="pauseBtn">
@@ -744,7 +732,6 @@
                                 Pause
 
                             </button>
-
 
 
                             <button
@@ -759,7 +746,6 @@
                         </div>
 
 
-
                         <div
                             class="control-group">
 
@@ -771,7 +757,6 @@
                                 Refresh Stream
 
                             </button>
-
 
 
                             <button
@@ -790,7 +775,6 @@
 
 
                 </div>
-
 
 
                 <!-- =========================
@@ -830,7 +814,6 @@
                         </div>
 
 
-
                         <div>
 
                             <span
@@ -852,7 +835,6 @@
                         </div>
 
 
-
                         <div
                             class="progress-custom">
 
@@ -865,7 +847,6 @@
                         </div>
 
 
-
                         <div
                             class="metric-footer">
 
@@ -875,7 +856,6 @@
 
 
                     </div>
-
 
 
                     <!-- CPU Temperature -->
@@ -907,7 +887,6 @@
                         </div>
 
 
-
                         <div>
 
                             <span
@@ -929,7 +908,6 @@
                         </div>
 
 
-
                         <div
                             class="metric-footer">
 
@@ -939,7 +917,6 @@
 
 
                     </div>
-
 
 
                     <!-- RAM -->
@@ -971,7 +948,6 @@
                         </div>
 
 
-
                         <div>
 
                             <span
@@ -993,7 +969,6 @@
                         </div>
 
 
-
                         <div
                             class="progress-custom">
 
@@ -1006,7 +981,6 @@
                         </div>
 
 
-
                         <div
                             class="metric-footer">
 
@@ -1016,7 +990,6 @@
 
 
                     </div>
-
 
 
                     <!-- FPS -->
@@ -1048,7 +1021,6 @@
                         </div>
 
 
-
                         <div>
 
                             <span
@@ -1060,7 +1032,6 @@
                             </span>
 
                         </div>
-
 
 
                         <div
@@ -1078,7 +1049,6 @@
 
 
             </div>
-
 
 
             <!-- =========================
@@ -1106,7 +1076,6 @@
 
 
                     </div>
-
 
 
                     <div
@@ -1138,7 +1107,6 @@
                         </div>
 
 
-
                         <!-- Device ID -->
 
                         <div
@@ -1163,7 +1131,6 @@
 
 
                         </div>
-
 
 
                         <!-- Uptime -->
@@ -1192,7 +1159,6 @@
                         </div>
 
 
-
                         <!-- Resolution -->
 
                         <div
@@ -1218,7 +1184,6 @@
                         </div>
 
 
-
                         <!-- Protocol -->
 
                         <div
@@ -1236,13 +1201,12 @@
                             <span
                                 class="info-value">
 
-                                RTMP / HLS
+                                RTMP / WebRTC
 
                             </span>
 
 
                         </div>
-
 
 
                         <!-- Camera -->
@@ -1271,7 +1235,6 @@
 
 
                         </div>
-
 
 
                         <!-- Status -->
@@ -1318,24 +1281,10 @@
 
 </div>
 
-
 {% endblock %}
 
 
-
 {% block javascript %}
-
-
-<!-- =========================
-     hls.js
-     必须放在自己的 JS 前面
-     ========================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/hls.js@latest">
-</script>
-
-
 
 <script>
 
@@ -1343,7 +1292,7 @@
 
 
         /* =====================================
-           Video
+           WebRTC
            ===================================== */
 
         const video =
@@ -1352,304 +1301,562 @@
             );
 
 
-        const streamUrl =
-            "/hls/cam1.m3u8";
+        /*
+         * SRS WHEP 地址
+         *
+         * RTMP:
+         * rtmp://106.14.2.164/live/cam1
+         *
+         * WebRTC:
+         * app = live
+         * stream = cam1
+         */
+
+        const whepUrl =
+            "http://106.14.2.164:1985/rtc/v1/whep/?app=live&stream=cam1";
 
 
-        let hls = null;
+        /*
+         * 当前 PeerConnection
+         */
 
+        let peerConnection = null;
 
 
         /* =====================================
-           Initialize HLS
+           Wait for ICE Gathering
            ===================================== */
 
-        function initHls() {
+        function waitForIceGatheringComplete(
+            pc
+        ) {
+
+            return new Promise(
+                function (resolve) {
 
 
-            /*
-             * 如果已经存在播放器，
-             * 先销毁。
-             */
+                    if (
+                        pc.iceGatheringState ===
+                        "complete"
+                    ) {
+
+                        resolve();
+
+                        return;
+                    }
+
+
+                    function checkState() {
+
+
+                        if (
+                            pc.iceGatheringState ===
+                            "complete"
+                        ) {
+
+
+                            pc.removeEventListener(
+                                "icegatheringstatechange",
+                                checkState
+                            );
+
+
+                            resolve();
+
+                        }
+
+                    }
+
+
+                    pc.addEventListener(
+                        "icegatheringstatechange",
+                        checkState
+                    );
+
+
+                }
+            );
+
+        }
+
+
+        /* =====================================
+           Close WebRTC
+           ===================================== */
+
+        function closeWebRTC() {
+
 
             if (
-                hls !== null
+                peerConnection !== null
             ) {
 
-                hls.destroy();
 
-                hls = null;
+                console.log(
+                    "Closing old WebRTC connection"
+                );
+
+
+                peerConnection.ontrack =
+                    null;
+
+
+                peerConnection
+                    .onconnectionstatechange =
+                    null;
+
+
+                peerConnection
+                    .oniceconnectionstatechange =
+                    null;
+
+
+                peerConnection.close();
+
+
+                peerConnection =
+                    null;
 
             }
 
 
+            video.srcObject =
+                null;
+
+        }
+
+
+        /* =====================================
+           Initialize WebRTC
+           ===================================== */
+
+        async function initWebRTC() {
+
+
+            console.log(
+                "Starting WebRTC..."
+            );
+
 
             /*
-             * Chrome / Edge / Firefox
+             * 关闭之前的连接
              */
 
-            if (
-                Hls.isSupported()
-            ) {
+            closeWebRTC();
 
 
-                console.log(
-                    "HLS.js supported"
-                );
+            /*
+             * 创建 PeerConnection
+             */
+
+            const pc =
+                new RTCPeerConnection();
 
 
-                console.log(
-                    "Loading:",
-                    streamUrl
-                );
+            peerConnection =
+                pc;
 
 
+            /*
+             * 当前只有摄像头视频，
+             * 所以这里只接收 video。
+             */
 
-                hls =
-                    new Hls({
-
-
-                        /*
-                         * 尽量靠近直播位置
-                         */
-
-                        liveSyncDurationCount:
-                            2,
-
-
-                        /*
-                         * 最大直播延迟
-                         */
-
-                        liveMaxLatencyDurationCount:
-                            5
-
-                    });
+            pc.addTransceiver(
+                "video",
+                {
+                    direction:
+                        "recvonly"
+                }
+            );
 
 
+            /*
+             * 收到远端视频轨道
+             */
 
-                /*
-                 * 加载 m3u8
-                 */
-
-                hls.loadSource(
-                    streamUrl
-                );
+            pc.ontrack =
+                function (event) {
 
 
-
-                /*
-                 * 绑定到 video
-                 */
-
-                hls.attachMedia(
-                    video
-                );
+                    console.log(
+                        "WebRTC track received:",
+                        event.track.kind
+                    );
 
 
+                    /*
+                     * WHEP 通常会提供 MediaStream
+                     */
 
-                /*
-                 * m3u8 加载完成
-                 */
-
-                hls.on(
-
-                    Hls.Events.MANIFEST_PARSED,
-
-                    function () {
+                    if (
+                        event.streams &&
+                        event.streams.length > 0
+                    ) {
 
 
-                        console.log(
-                            "HLS manifest loaded"
-                        );
-
-
-                        video.play()
-                            .catch(
-
-                                function (
-                                    error
-                                ) {
-
-                                    console.log(
-                                        "Autoplay blocked:",
-                                        error
-                                    );
-
-                                }
-
-                            );
+                        video.srcObject =
+                            event.streams[0];
 
                     }
 
-                );
+
+                    /*
+                     * 极少数情况下 streams 为空，
+                     * 手动创建 MediaStream。
+                     */
+
+                    else {
 
 
+                        const stream =
+                            new MediaStream();
 
-                /*
-                 * HLS Error
-                 */
 
-                hls.on(
+                        stream.addTrack(
+                            event.track
+                        );
 
-                    Hls.Events.ERROR,
 
-                    function (
-                        event,
-                        data
+                        video.srcObject =
+                            stream;
+
+                    }
+
+
+                    video.play()
+                        .catch(
+                            function (
+                                error
+                            ) {
+
+
+                                console.log(
+                                    "Autoplay blocked:",
+                                    error
+                                );
+
+
+                            }
+                        );
+
+                };
+
+
+            /*
+             * WebRTC 总连接状态
+             */
+
+            pc.onconnectionstatechange =
+                function () {
+
+
+                    console.log(
+                        "WebRTC connection state:",
+                        pc.connectionState
+                    );
+
+
+                    if (
+                        pc.connectionState ===
+                        "connected"
+                    ) {
+
+
+                        console.log(
+                            "WebRTC connected successfully"
+                        );
+
+                    }
+
+
+                    else if (
+                        pc.connectionState ===
+                        "failed"
                     ) {
 
 
                         console.error(
-                            "HLS error:",
-                            data
+                            "WebRTC connection failed"
                         );
-
-
-
-                        if (
-                            data.fatal !== true
-                        ) {
-
-                            return;
-
-                        }
-
-
-
-                        switch (
-                            data.type
-                        ) {
-
-
-                            /*
-                             * Network
-                             */
-
-                            case
-                                Hls.ErrorTypes
-                                    .NETWORK_ERROR:
-
-
-                                console.log(
-                                    "Network error"
-                                );
-
-
-                                hls.startLoad();
-
-
-                                break;
-
-
-
-                            /*
-                             * Decoder
-                             */
-
-                            case
-                                Hls.ErrorTypes
-                                    .MEDIA_ERROR:
-
-
-                                console.log(
-                                    "Media error"
-                                );
-
-
-                                hls
-                                    .recoverMediaError();
-
-
-                                break;
-
-
-
-                            /*
-                             * Fatal
-                             */
-
-                            default:
-
-
-                                console.log(
-                                    "Fatal HLS error"
-                                );
-
-
-                                hls.destroy();
-
-
-                                hls = null;
-
-
-                                break;
-
-                        }
 
                     }
 
-                );
 
-            }
+                    else if (
+                        pc.connectionState ===
+                        "disconnected"
+                    ) {
 
+
+                        console.warn(
+                            "WebRTC disconnected"
+                        );
+
+                    }
+
+
+                    else if (
+                        pc.connectionState ===
+                        "closed"
+                    ) {
+
+
+                        console.log(
+                            "WebRTC connection closed"
+                        );
+
+                    }
+
+                };
 
 
             /*
-             * Safari
+             * ICE 状态
              */
 
-            else if (
-
-                video.canPlayType(
-                    "application/vnd.apple.mpegurl"
-                )
-
-            ) {
+            pc.oniceconnectionstatechange =
+                function () {
 
 
-                video.src =
-                    streamUrl;
+                    console.log(
+                        "ICE connection state:",
+                        pc.iceConnectionState
+                    );
+
+                };
 
 
-                video.play()
-                    .catch(
+            /*
+             * ICE Gathering 状态
+             */
 
-                        function (
-                            error
-                        ) {
+            pc.onicegatheringstatechange =
+                function () {
 
-                            console.log(
-                                "Play error:",
-                                error
-                            );
+
+                    console.log(
+                        "ICE gathering state:",
+                        pc.iceGatheringState
+                    );
+
+                };
+
+
+            try {
+
+
+                /*
+                 * 创建 Offer
+                 */
+
+                const offer =
+                    await pc.createOffer();
+
+
+                console.log(
+                    "SDP offer created"
+                );
+
+
+                /*
+                 * 设置本地 SDP
+                 */
+
+                await pc
+                    .setLocalDescription(
+                        offer
+                    );
+
+
+                /*
+                 * 等待 candidate 收集完成
+                 */
+
+                await waitForIceGatheringComplete(
+                    pc
+                );
+
+
+                /*
+                 * Refresh 时可能已经创建了新的 pc。
+                 * 防止旧请求继续操作。
+                 */
+
+                if (
+                    peerConnection !== pc
+                ) {
+
+
+                    console.log(
+                        "Old WebRTC request ignored"
+                    );
+
+
+                    pc.close();
+
+
+                    return;
+
+                }
+
+
+                console.log(
+                    "Sending WHEP request:",
+                    whepUrl
+                );
+
+
+                /*
+                 * 向 SRS WHEP 接口发送 Offer
+                 */
+
+                const response =
+                    await fetch(
+
+                        whepUrl,
+
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/sdp"
+
+                            },
+
+                            body:
+                                pc.localDescription.sdp
 
                         }
 
                     );
 
+
+                /*
+                 * HTTP 请求失败
+                 */
+
+                if (
+                    response.ok !== true
+                ) {
+
+
+                    const errorText =
+                        await response.text();
+
+
+                    throw new Error(
+                        "WHEP request failed: "
+                        +
+                        response.status
+                        +
+                        " "
+                        +
+                        errorText
+                    );
+
+                }
+
+
+                /*
+                 * SRS 返回 SDP Answer
+                 */
+
+                const answerSdp =
+                    await response.text();
+
+
+                console.log(
+                    "Received WHEP SDP answer"
+                );
+
+
+                /*
+                 * 设置远端 SDP
+                 */
+
+                await pc
+                    .setRemoteDescription(
+                        {
+                            type:
+                                "answer",
+
+                            sdp:
+                                answerSdp
+                        }
+                    );
+
+
+                console.log(
+                    "Remote SDP configured"
+                );
+
+
+                /*
+                 * video muted=true，
+                 * 通常浏览器允许自动播放。
+                 */
+
+                video.play()
+                    .catch(
+                        function (
+                            error
+                        ) {
+
+
+                            console.log(
+                                "Video play waiting for track:",
+                                error
+                            );
+
+
+                        }
+                    );
+
+
             }
 
 
-
-            else {
+            catch (
+                error
+            ) {
 
 
                 console.error(
-                    "HLS not supported"
+                    "WebRTC initialization error:",
+                    error
                 );
 
+
+                /*
+                 * 只有当前连接失败时才关闭
+                 */
+
+                if (
+                    peerConnection === pc
+                ) {
+
+
+                    closeWebRTC();
+
+                }
+
+
             }
+
 
         }
 
 
-
         /*
-         * 页面加载后启动视频
+         * 页面加载后直接建立 WebRTC
          */
 
-        initHls();
+        initWebRTC();
 
 
 
@@ -1732,9 +1939,7 @@
         }
 
 
-
         updateTime();
-
 
 
         setInterval(
@@ -1751,6 +1956,24 @@
         $("#playBtn").click(
 
             function () {
+
+
+                /*
+                 * 如果连接不存在，
+                 * Play 也可以重新连接。
+                 */
+
+                if (
+                    peerConnection === null
+                ) {
+
+
+                    initWebRTC();
+
+
+                    return;
+
+                }
 
 
                 video.play()
@@ -1783,6 +2006,13 @@
 
             function () {
 
+
+                /*
+                 * 注意：
+                 * pause 只暂停 video 元素显示，
+                 * WebRTC 网络连接仍然存在。
+                 */
+
                 video.pause();
 
             }
@@ -1804,22 +2034,26 @@
                     !video.muted;
 
 
-
                 if (
                     video.muted
                 ) {
+
 
                     $(this).text(
                         "Unmute"
                     );
 
+
                 }
 
+
                 else {
+
 
                     $(this).text(
                         "Mute"
                     );
+
 
                 }
 
@@ -1839,11 +2073,20 @@
 
 
                 console.log(
-                    "Refresh stream"
+                    "Reconnect WebRTC stream"
                 );
 
 
-                initHls();
+                /*
+                 * WebRTC 没有 HLS 的 reload。
+                 * Refresh 的含义就是：
+                 *
+                 * 关闭 PeerConnection
+                 * +
+                 * 重新建立 PeerConnection
+                 */
+
+                initWebRTC();
 
             }
 
@@ -1864,17 +2107,22 @@
                     video.requestFullscreen
                 ) {
 
+
                     video
                         .requestFullscreen();
 
+
                 }
+
 
                 else if (
                     video.webkitRequestFullscreen
                 ) {
 
+
                     video
                         .webkitRequestFullscreen();
+
 
                 }
 
@@ -2032,7 +2280,6 @@
                             );
 
 
-
                         if (
                             camera ===
                             "online"
@@ -2049,6 +2296,7 @@
 
 
                         }
+
 
                         else {
 
@@ -2100,6 +2348,7 @@
 
 
                         }
+
 
                         else {
 
@@ -2202,9 +2451,23 @@
         );
 
 
+
+        /* =====================================
+           页面离开时关闭 WebRTC
+           ===================================== */
+
+        window.addEventListener(
+            "beforeunload",
+            function () {
+
+                closeWebRTC();
+
+            }
+        );
+
+
     });
 
 </script>
-
 
 {% endblock %}
