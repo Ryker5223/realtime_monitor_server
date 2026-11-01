@@ -1462,85 +1462,57 @@
              * 所以这里只接收 video。
              */
 
-            pc.addTransceiver(
-                "video",
-                {
-                    direction:
-                        "recvonly"
-                }
-            );
+            /* 接收视频 */
+            pc.addTransceiver("video", {
+                direction: "recvonly"
+            });
+
+            /* 接收音频 */
+            pc.addTransceiver("audio", {
+                direction: "recvonly"
+            });
 
 
             /*
              * 收到远端视频轨道
              */
 
-            pc.ontrack =
-                function (event) {
+            /* 创建一个同时容纳音视频轨道的 MediaStream */
+            const remoteStream = new MediaStream();
 
+            video.srcObject = remoteStream;
 
-                    console.log(
-                        "WebRTC track received:",
-                        event.track.kind
-                    );
+            /* 接收服务器返回的音视频轨道 */
+            pc.ontrack = function (event) {
 
+                console.log(
+                    "WebRTC track received:",
+                    event.track.kind
+                );
 
-                    /*
-                     * WHEP 通常会提供 MediaStream
-                     */
+                /* 避免重复添加轨道 */
+                const exists = remoteStream
+                    .getTracks()
+                    .some(track => track.id === event.track.id);
 
-                    if (
-                        event.streams &&
-                        event.streams.length > 0
-                    ) {
+                if (!exists) {
+                    remoteStream.addTrack(event.track);
+                }
 
+                console.log(
+                    "Video tracks:",
+                    remoteStream.getVideoTracks().length
+                );
 
-                        video.srcObject =
-                            event.streams[0];
+                console.log(
+                    "Audio tracks:",
+                    remoteStream.getAudioTracks().length
+                );
 
-                    }
-
-
-                    /*
-                     * 极少数情况下 streams 为空，
-                     * 手动创建 MediaStream。
-                     */
-
-                    else {
-
-
-                        const stream =
-                            new MediaStream();
-
-
-                        stream.addTrack(
-                            event.track
-                        );
-
-
-                        video.srcObject =
-                            stream;
-
-                    }
-
-
-                    video.play()
-                        .catch(
-                            function (
-                                error
-                            ) {
-
-
-                                console.log(
-                                    "Autoplay blocked:",
-                                    error
-                                );
-
-
-                            }
-                        );
-
-                };
+                video.play().catch(function (error) {
+                    console.log("Autoplay blocked:", error);
+                });
+            };
 
 
             /*
